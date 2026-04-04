@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useAppContext } from './context/AppContext';
 
 // Layouts
@@ -41,7 +41,7 @@ const EventsRedirect = () => {
 
 function AppRoutes() {
   return (
-    <BrowserRouter basename="/Hicas-Vibehub">
+    <HashRouter>
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
@@ -80,7 +80,7 @@ function AppRoutes() {
           <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 

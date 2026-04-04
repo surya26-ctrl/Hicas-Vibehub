@@ -70,11 +70,20 @@ const StudentDashboard = () => {
         return 'Good Evening';
     };
 
-    const leaderboardData = [
-        { name: `${user?.name || 'You'} (You)`, points: registeredCount * 10 }
-    ].sort((a,b) => b.points - a.points).map((u, i) => ({ ...u, rank: i + 1 }));
+    const userMap = {};
+    (registrations || []).forEach(reg => {
+        if (!userMap[reg.email]) {
+            userMap[reg.email] = { name: reg.studentName, points: 0, email: reg.email };
+        }
+        userMap[reg.email].points += 10;
+    });
 
-    const myRank = leaderboardData.find(u => u.name.includes('(You)'))?.rank || '-';
+    const leaderboardData = Object.values(userMap)
+        .sort((a,b) => b.points - a.points)
+        .map((u, i) => ({ ...u, rank: i + 1 }));
+
+    const myRank = leaderboardData.find(u => u.email === user?.email)?.rank || '-';
+    const myPoints = leaderboardData.find(u => u.email === user?.email)?.points || 0;
 
     const downloadCertificate = async () => {
         if (!certificateRef.current) return;
@@ -158,12 +167,18 @@ const StudentDashboard = () => {
                         <div style={{ backgroundColor: '#f0fdf4', padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', color: '#166534', fontWeight: 'bold' }}>Rank #{myRank}</div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                        {leaderboardData.slice(0, 2).map((lb, i) => (
+                        {leaderboardData.slice(0, 3).map((lb, i) => (
                              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem' }}>
-                                 <span style={{ fontWeight: lb.name.includes('(You)') ? 700 : 500, color: 'var(--dark-blue)' }}>{i+1}. {lb.name.split(' ')[0]}</span>
+                                 <span style={{ fontWeight: lb.email === user?.email ? 700 : 500, color: 'var(--dark-blue)' }}>{i+1}. {lb.name.split(' ')[0]} {lb.email === user?.email ? '(You)' : ''}</span>
                                  <span style={{ fontWeight: 600, color: 'var(--primary-blue)' }}>{lb.points} pts</span>
                              </div>
                         ))}
+                        {myRank > 3 && (
+                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', borderTop: '1px solid #f1f5f9', mt: '4px', pt: '4px' }}>
+                                 <span style={{ fontWeight: 700, color: 'var(--dark-blue)' }}>{myRank}. {user?.name.split(' ')[0]} (You)</span>
+                                 <span style={{ fontWeight: 600, color: 'var(--primary-blue)' }}>{myPoints} pts</span>
+                             </div>
+                        )}
                     </div>
                 </div>
             </div>

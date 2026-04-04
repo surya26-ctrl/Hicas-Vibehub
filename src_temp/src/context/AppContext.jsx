@@ -18,6 +18,7 @@ export const AppProvider = ({ children }) => {
   const [registrations, setRegistrations] = useState([]);
   const [signatures, setSignatures] = useState({ principal: '' });
   const [feedback, setFeedback] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Initialize from LocalStorage (Sync for Netlify/Static Hosting)
@@ -61,6 +62,18 @@ export const AppProvider = ({ children }) => {
       const initialFeed = [];
       setFeedback(initialFeed);
       localStorage.setItem('vibeHubFeedback', JSON.stringify(initialFeed));
+    }
+
+    const localUsers = localStorage.getItem('vibeHubUsers');
+    if (localUsers) {
+      setAllUsers(JSON.parse(localUsers));
+    } else {
+      const initialUsers = [
+          { name: 'Admin Account', email: 'admin@hicas.ac.in', role: 'admin', department: 'Administration' },
+          { name: 'Demo Student', email: 'student@hicas.ac.in', role: 'student', department: 'Computer Science' }
+      ];
+      setAllUsers(initialUsers);
+      localStorage.setItem('vibeHubUsers', JSON.stringify(initialUsers));
     }
 
     const fetchEvents = async () => {
@@ -270,10 +283,11 @@ export const AppProvider = ({ children }) => {
         if (response.ok && data.success) return true;
         throw new Error(data.message || 'Server error');
     } catch (err) {
-        console.warn('Registration Server Error, falling back to local storage:', err);
         const newUser = { ...userData, id: Date.now() };
         const existingUsers = JSON.parse(localStorage.getItem('vibeHubUsers') || '[]');
-        localStorage.setItem('vibeHubUsers', JSON.stringify([...existingUsers, newUser]));
+        const updatedUsers = [...existingUsers, newUser];
+        localStorage.setItem('vibeHubUsers', JSON.stringify(updatedUsers));
+        setAllUsers(updatedUsers);
         return true;
     }
   };
@@ -297,6 +311,7 @@ export const AppProvider = ({ children }) => {
         registrations, setRegistrations,
         feedback, addFeedback,
         signatures, updateSignatures,
+        allUsers, setAllUsers,
         resetData, addEvent, deleteEvent, login, logout, registerForEvent, updateCertificateStatus, registerUser, loading 
     }}>
       {children}
