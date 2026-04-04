@@ -41,7 +41,7 @@ const EventsRedirect = () => {
 
 function AppRoutes() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/Hicas-Vibehub">
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
