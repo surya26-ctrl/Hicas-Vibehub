@@ -29,39 +29,10 @@ const AdminDashboard = () => {
                 if (data.success) {
                     setStats(data.stats);
                     setLoading(false);
-                    return;
                 }
             } catch (err) {
-                console.warn("Backend analytics endpoint failed, deriving from context");
+                console.error("Backend analytics fetch failed:", err);
             }
-            
-            // Fallback: derive from context
-            const localUsers = JSON.parse(localStorage.getItem('vibeHubUsers') || '[]');
-            const dStats = {};
-            const eStats = {};
-            let internal = 0;
-            let external = 0;
-
-            (registrations || []).forEach(reg => {
-                dStats[reg.department] = (dStats[reg.department] || 0) + 1;
-                eStats[reg.eventTitle] = (eStats[reg.eventTitle] || 0) + 1;
-                if (reg.institution === 'HICAS' || !reg.institution) internal++;
-                else external++;
-            });
-
-            const derived = {
-                totalUsers: localUsers.length || (registrations?.length ? registrations.length + 5 : 0),
-                totalEvents: events?.length || 0,
-                totalRegistrations: registrations?.length || 0,
-                deptStats: Object.keys(dStats).map(d => ({ department: d, count: dStats[d] })),
-                eventStats: Object.keys(eStats).map(e => ({ title: e, count: eStats[e] })),
-                institutionStats: [
-                    { name: 'HICAS (Internal)', value: internal },
-                    { name: 'Other Colleges (External)', value: external }
-                ]
-            };
-            setStats(derived);
-            setLoading(false);
         };
         fetchStats();
     }, [events, registrations]);
