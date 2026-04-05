@@ -21,79 +21,42 @@ export const AppProvider = ({ children }) => {
   const [allUsers, setAllUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Initialize from LocalStorage (Sync for Netlify/Static Hosting)
+  // Initialize from API / Fallback to LocalStorage
   useEffect(() => {
-    const localUser = localStorage.getItem('vibeHubUser');
-    if (localUser) setUser(JSON.parse(localUser));
-
-    const localRegistrations = localStorage.getItem('vibeHubRegistrations');
-    if (localRegistrations) setRegistrations(JSON.parse(localRegistrations));
-
-    const localSignatures = localStorage.getItem('vibeHubSignatures');
-    if (localSignatures) {
-      setSignatures(JSON.parse(localSignatures));
-    } else {
-      setSignatures({ principal: '' });
-    }
-
-    const localEvents = localStorage.getItem('vibeHubEvents');
-    if (localEvents) {
-      setEvents(JSON.parse(localEvents));
-    } else {
-      // Default Mock Events for HICAS
-      const initialEvents = [];
-      setEvents(initialEvents);
-      localStorage.setItem('vibeHubEvents', JSON.stringify(initialEvents));
-    }
-
-    const localRegs = localStorage.getItem('vibeHubRegistrations');
-    if (localRegs) {
-      setRegistrations(JSON.parse(localRegs));
-    } else {
-      const mockRegs = [];
-      setRegistrations(mockRegs);
-      localStorage.setItem('vibeHubRegistrations', JSON.stringify(mockRegs));
-    }
-
-    const localFeedback = localStorage.getItem('vibeHubFeedback');
-    if (localFeedback) {
-      setFeedback(JSON.parse(localFeedback));
-    } else {
-      const initialFeed = [];
-      setFeedback(initialFeed);
-      localStorage.setItem('vibeHubFeedback', JSON.stringify(initialFeed));
-    }
-
-    const localUsers = localStorage.getItem('vibeHubUsers');
-    if (localUsers) {
-      setAllUsers(JSON.parse(localUsers));
-    } else {
-      const initialUsers = [
-          { name: 'Admin Account', email: 'admin@hicas.ac.in', role: 'admin', department: 'Administration' },
-          { name: 'Demo Student', email: 'student@hicas.ac.in', role: 'student', department: 'Computer Science' }
-      ];
-      setAllUsers(initialUsers);
-      localStorage.setItem('vibeHubUsers', JSON.stringify(initialUsers));
-    }
-
-    const fetchEvents = async () => {
+    const fetchInitialData = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/events`);
-        if (response.ok) {
-          const data = await response.json();
-          if (data.events && data.events.length > 0) {
-            setEvents(data.events);
-            localStorage.setItem('vibeHubEvents', JSON.stringify(data.events));
-          }
+        const localUser = localStorage.getItem('vibeHubUser');
+        if (localUser) setUser(JSON.parse(localUser));
+
+        const [eventsRes, regsRes, statsRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/api/events`),
+          fetch(`${API_BASE_URL}/api/registrations`),
+          fetch(`${API_BASE_URL}/api/events/stats`)
+        ]);
+
+        if (eventsRes.ok) {
+           const data = await eventsRes.json();
+           setEvents(data.events || []);
         }
+
+        if (regsRes.ok) {
+           const data = await regsRes.json();
+           setRegistrations(data.registrations || []);
+        }
+
       } catch (err) {
-        console.warn('Using LocalStorage data');
+        console.warn('API Error, falling back to local data');
+        const localEvents = localStorage.getItem('vibeHubEvents');
+        if (localEvents) setEvents(JSON.parse(localEvents));
+        
+        const localRegs = localStorage.getItem('vibeHubRegistrations');
+        if (localRegs) setRegistrations(JSON.parse(localRegs));
       } finally {
         setLoading(false);
       }
     };
     
-    fetchEvents();
+    fetchInitialData();
   }, []);
 
   const addEvent = async (eventData) => {
@@ -103,38 +66,26 @@ export const AppProvider = ({ children }) => {
 
         const newEvent = { 
             ...eventData, 
-            id: eventData.id || Date.now(),
             poster_url: posterUrl,
             coordinatorSignature: coordSig
         };
         
-        let updatedEvents;
-        const existingIndex = events.findIndex(e => e.id === newEvent.id);
-        
-        if (existingIndex > -1) {
-            updatedEvents = events.map(e => e.id === newEvent.id ? newEvent : e);
-        } else {
-            updatedEvents = [newEvent, ...events];
-        }
-        
-        setEvents(updatedEvents);
-        localStorage.setItem('vibeHubEvents', JSON.stringify(updatedEvents));
+        const response = await fetch(`${API_BASE_URL}/api/events`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newEvent)
+        });
 
-        // Optional Backend Sync
-        try {
-            const method = eventData.id ? 'PUT' : 'POST';
-            const url = eventData.id ? `${API_BASE_URL}/api/events/${eventData.id}` : `${API_BASE_URL}/api/events`;
-            await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newEvent)
-            });
-        } catch (e) {
-            console.log("Sync skipped in offline/demo mode");
+        if (response.ok) {
+            const data = await response.json();
+            const updated = [{ ...newEvent, id: data.id }, ...events];
+            setEvents(updated);
+            localStorage.setItem('vibeHubEvents', JSON.stringify(updated));
+            return true;
         }
-        return true;
+        return false;
     } catch (err) {
-        console.error("Failed to add/update event:", err);
+        console.error("Failed to add event:", err);
         return false;
     }
   };
@@ -200,44 +151,16 @@ export const AppProvider = ({ children }) => {
             body: JSON.stringify({ email, password, role })
         });
         
-        const data = await response.json().catch(() => ({}));
+        const data = await response.json();
         
         if (response.ok && data.success) {
             setUser(data.user);
             localStorage.setItem('vibeHubUser', JSON.stringify(data.user));
             return true;
         }
-        throw new Error('Login failed');
+        return false;
     } catch(e) {
-        console.warn("Login fallback initiated...");
-        // Mock Login for Netlify Demo
-        const baseUser = { 
-            id: email === 'admin@hicas.ac.in' ? 1 : 2, 
-            name: email === 'admin@hicas.ac.in' ? 'Admin' : 'Student', 
-            role: email === 'admin@hicas.ac.in' ? 'admin' : 'student',
-            email: email,
-            department: 'Computer Science' 
-        };
-        
-        const lowerEmail = email.toLowerCase().trim();
-        const trimmedPass = password.trim();
-
-        // Check if user exists in local registered users
-        const localUsers = JSON.parse(localStorage.getItem('vibeHubUsers') || '[]');
-        const foundUser = localUsers.find(u => u.email.toLowerCase() === lowerEmail && u.password === trimmedPass && u.role === role);
-
-        if (foundUser) {
-            setUser(foundUser);
-            localStorage.setItem('vibeHubUser', JSON.stringify(foundUser));
-            return true;
-        }
-
-        if ((lowerEmail === 'admin@hicas.ac.in' && trimmedPass === 'admin123' && role === 'admin') || 
-            (lowerEmail === 'student@hicas.ac.in' && trimmedPass === 'student123' && role === 'student')) {
-            setUser(baseUser);
-            localStorage.setItem('vibeHubUser', JSON.stringify(baseUser));
-            return true;
-        }
+        console.error("Login Error:", e);
         return false;
     }
   };
@@ -245,7 +168,6 @@ export const AppProvider = ({ children }) => {
   const registerForEvent = async (eventId, subEvents) => {
     const event = events.find(e => e.id === eventId);
     const newReg = {
-        id: Date.now(),
         eventId: eventId,
         studentName: user.name,
         email: user.email,
@@ -256,11 +178,24 @@ export const AppProvider = ({ children }) => {
         date: new Date().toISOString().split('T')[0]
     };
 
-    const updatedRegs = [newReg, ...registrations];
-    setRegistrations(updatedRegs);
-    localStorage.setItem('vibeHubRegistrations', JSON.stringify(updatedRegs));
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/registrations`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newReg)
+        });
 
-    return true;
+        if (response.ok) {
+            const updatedRegs = [newReg, ...registrations];
+            setRegistrations(updatedRegs);
+            localStorage.setItem('vibeHubRegistrations', JSON.stringify(updatedRegs));
+            return true;
+        }
+        return false;
+    } catch (err) {
+        console.error("Registration failed:", err);
+        return false;
+    }
   };
 
   const updateCertificateStatus = (regId, status) => {
@@ -279,16 +214,11 @@ export const AppProvider = ({ children }) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData)
         });
-        const data = await response.json().catch(() => ({}));
-        if (response.ok && data.success) return true;
-        throw new Error(data.message || 'Server error');
+        const data = await response.json();
+        return response.ok && data.success;
     } catch (err) {
-        const newUser = { ...userData, id: Date.now() };
-        const existingUsers = JSON.parse(localStorage.getItem('vibeHubUsers') || '[]');
-        const updatedUsers = [...existingUsers, newUser];
-        localStorage.setItem('vibeHubUsers', JSON.stringify(updatedUsers));
-        setAllUsers(updatedUsers);
-        return true;
+        console.error("Registration Error:", err);
+        return false;
     }
   };
 

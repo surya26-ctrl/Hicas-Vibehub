@@ -315,42 +315,125 @@ const StudentDashboard = () => {
                     </div>
                     
                     <div style={{ overflowX: 'auto', width: '100%', display: 'flex', justifyContent: 'center' }}>
-                        <div ref={certificateRef} style={{ minWidth: '800px', width: '800px', height: '600px', backgroundColor: 'white', padding: '40px', position: 'relative', border: '15px solid var(--primary-blue)', boxSizing: 'border-box' }}>
-                            <div style={{ border: '2px solid var(--dark-blue)', height: '100%', padding: '40px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box' }}>
-                                <div style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--dark-blue)', marginBottom: '0.5rem' }}>VIBEHUB 2026</div>
-                                <div style={{ fontSize: '1.25rem', color: 'var(--primary-blue)', marginBottom: '2rem', fontWeight: 700 }}>Hindusthan College of Arts & Science</div>
-                                <div style={{ fontSize: '3rem', fontFamily: 'serif', fontStyle: 'italic', marginBottom: '1rem' }}>Certificate of Participation</div>
-                                <div style={{ fontSize: '1rem', color: '#64748b', marginBottom: '0.5rem' }}>This is to certify that</div>
-                                <div style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--dark-blue)', margin: '1rem 0', borderBottom: '2px solid #e2e8f0', minWidth: '400px' }}>{user.name}</div>
-                                <div style={{ fontSize: '1rem', color: '#64748b', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
-                                    of <b>{user.department}</b> department has successfully participated in the event <br/>
-                                    <span style={{ color: 'var(--primary-blue)', fontSize: '1.6rem', fontWeight: 800, textTransform: 'uppercase' }}>{showCertificate.eventTitle}</span><br/>
-                                    held on <b>{new Date(showCertificate.date).toLocaleDateString()}</b>.
-                                </div>
-                                <div style={{ marginTop: 'auto', width: '100%', display: 'flex', justifyContent: 'space-between', padding: '0 40px' }}>
-                                    <div style={{ textAlign: 'center' }}>
-                                        {(events.find(e => e.id === showCertificate.eventId || e.title === showCertificate.eventTitle)?.coordinatorSignature) ? (
-                                            <div style={{ marginBottom: '-10px' }}>
-                                                <img src={events.find(e => e.id === showCertificate.eventId || e.title === showCertificate.eventTitle).coordinatorSignature} alt="Coordinator" style={{ height: '60px', mixBlendMode: 'multiply' }} />
-                                            </div>
-                                        ) : (
-                                            <div style={{ height: '60px' }}></div>
-                                        )}
-                                        <div style={{ height: '2px', backgroundColor: 'black', width: '180px', marginBottom: '5px' }}></div>
-                                        <div style={{ fontSize: '0.8rem', fontWeight: 700 }}>EVENT COORDINATOR</div>
+                    <div style={{ overflowX: 'auto', width: '100%', display: 'flex', justifyContent: 'center' }}>
+                        <div ref={certificateRef} style={{ 
+                            minWidth: '1000px', 
+                            width: '1000px', 
+                            height: '750px', 
+                            backgroundColor: '#fffdf9', 
+                            padding: '40px', 
+                            position: 'relative', 
+                            border: '25px solid #0a2540', 
+                            boxSizing: 'border-box',
+                            boxShadow: '0 0 50px rgba(0,0,0,0.3)',
+                            backgroundImage: 'radial-gradient(circle at center, #ffffff 0%, #fffdf0 100%)'
+                        }}>
+                            {/* Ornate Inner Border */}
+                            <div style={{ 
+                                border: '3px double #b45309', 
+                                height: '100%', 
+                                padding: '30px', 
+                                textAlign: 'center', 
+                                display: 'flex', 
+                                flexDirection: 'column', 
+                                alignItems: 'center', 
+                                boxSizing: 'border-box',
+                                position: 'relative'
+                            }}>
+                                {/* Golden Corner Elements (SVG Placeholders) */}
+                                <div style={{ position: 'absolute', top: 0, left: 0, width: '60px', height: '60px', borderTop: '4px solid #b45309', borderLeft: '4px solid #b45309' }}></div>
+                                <div style={{ position: 'absolute', top: 0, right: 0, width: '60px', height: '60px', borderTop: '4px solid #b45309', borderRight: '4px solid #b45309' }}></div>
+                                <div style={{ position: 'absolute', bottom: 0, left: 0, width: '60px', height: '60px', borderBottom: '4px solid #b45309', borderLeft: '4px solid #b45309' }}></div>
+                                <div style={{ position: 'absolute', bottom: 0, right: 0, width: '60px', height: '60px', borderBottom: '4px solid #b45309', borderRight: '4px solid #b45309' }}></div>
+
+                                {/* Logo Header */}
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: '20px' }}>
+                                    <div style={{ textAlign: 'left', flex: 1 }}>
+                                        <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0a2540' }}>HINDUSTHAN</div>
+                                        <div style={{ fontSize: '0.8rem', color: '#b45309' }}>EDUCATIONAL AND CHARITABLE TRUST</div>
                                     </div>
+                                    <div style={{ flex: 1, textAlign: 'center' }}>
+                                        <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0a2540', letterSpacing: '2px' }}>HINDUSTHAN</div>
+                                        <div style={{ fontSize: '1rem', fontWeight: 700, color: '#334155' }}>COLLEGE OF ARTS & SCIENCE</div>
+                                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>(AN AUTONOMOUS INSTITUTION)</div>
+                                    </div>
+                                    <div style={{ flex: 1, textAlign: 'right' }}>
+                                        <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0a2540' }}>VIBEHUB</div>
+                                        <div style={{ fontSize: '0.8rem', color: '#b45309' }}>OFFICIAL PORTAL</div>
+                                    </div>
+                                </div>
+
+                                <div style={{ height: '2px', width: '80%', background: 'linear-gradient(to right, transparent, #b45309, transparent)', marginBottom: '30px' }}></div>
+
+                                {/* Main Title */}
+                                <div style={{ fontSize: '4.5rem', fontWeight: 900, color: '#0a2540', margin: '1rem 0', fontFamily: 'serif', letterSpacing: '4px', textShadow: '2px 2px 4px rgba(0,0,0,0.1)' }}>
+                                    {showCertificate.eventTitle?.toUpperCase() || 'VIBEHUB 2026'}
+                                </div>
+                                
+                                <div style={{ fontSize: '3.5rem', fontFamily: 'serif', fontStyle: 'italic', color: '#b45309', margin: '1rem 0' }}>Certificate</div>
+
+                                <div style={{ fontSize: '1.2rem', color: '#334155', marginTop: '20px', fontFamily: 'serif' }}>This is to certify that Mr./Ms.</div>
+                                
+                                <div style={{ fontSize: '3rem', fontWeight: 800, color: '#0a2540', margin: '15px 0', borderBottom: '2px solid #334155', minWidth: '600px', fontFamily: 'serif' }}>
+                                    {user.name.toUpperCase()}
+                                </div>
+
+                                <div style={{ fontSize: '1.2rem', color: '#334155', maxWidth: '800px', lineHeight: 1.8, fontFamily: 'serif' }}>
+                                    of <b>{user.department?.toUpperCase()}</b> department has successfully participated <br/>
+                                    in the event <b style={{ fontSize: '1.5rem', color: '#0a2540' }}>{showCertificate.eventTitle}</b><br/>
+                                    held on <b>{new Date(showCertificate.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</b>.
+                                </div>
+
+                                {/* Gold Seal SVG */}
+                                <div style={{ position: 'absolute', top: '70px', right: '40px', width: '120px', height: '120px' }}>
+                                     <svg viewBox="0 0 100 100" width="100" height="100">
+                                        <circle cx="50" cy="50" r="45" fill="#facc15" stroke="#b45309" strokeWidth="2" />
+                                        <circle cx="50" cy="50" r="38" fill="none" stroke="#b45309" strokeWidth="1" strokeDasharray="3 2" />
+                                        <text x="50" y="45" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#b45309">BEST</text>
+                                        <text x="50" y="60" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#b45309">AWARD</text>
+                                        <path d="M40 70 L50 65 L60 70" fill="none" stroke="#b45309" strokeWidth="2" />
+                                     </svg>
+                                </div>
+
+                                {/* Signatures */}
+                                <div style={{ marginTop: 'auto', width: '100%', display: 'flex', justifyContent: 'space-between', padding: '0 40px', marginBottom: '20px' }}>
                                     <div style={{ textAlign: 'center' }}>
-                                        {signatures.principal && (
-                                            <div style={{ marginBottom: '-10px' }}>
+                                        {/* Coordinator Sign */}
+                                        <div style={{ height: '70px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+                                            {events.find(e => e.id === showCertificate.eventId || e.title === showCertificate.eventTitle)?.coordinatorSignature && (
+                                                <img src={events.find(e => e.id === showCertificate.eventId || e.title === showCertificate.eventTitle).coordinatorSignature} alt="Coord" style={{ height: '60px', mixBlendMode: 'multiply' }} />
+                                            )}
+                                        </div>
+                                        <div style={{ height: '2px', backgroundColor: '#334155', width: '200px', marginBottom: '8px' }}></div>
+                                        <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0a2540' }}>MRS. B. YAZHINI</div>
+                                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>EVENT CO-ORDINATOR</div>
+                                    </div>
+
+                                    <div style={{ textAlign: 'center' }}>
+                                        {/* HOD Sign */}
+                                        <div style={{ height: '70px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+                                            {/* Placeholder for HOD */}
+                                        </div>
+                                        <div style={{ height: '2px', backgroundColor: '#334155', width: '200px', marginBottom: '8px' }}></div>
+                                        <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0a2540' }}>DR. R. RANGARAJ</div>
+                                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>HEAD OF THE DEPARTMENT</div>
+                                    </div>
+
+                                    <div style={{ textAlign: 'center' }}>
+                                        {/* Principal Sign */}
+                                        <div style={{ height: '70px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+                                            {signatures.principal && (
                                                 <img src={signatures.principal} alt="Principal" style={{ height: '60px', mixBlendMode: 'multiply' }} />
-                                            </div>
-                                        )}
-                                        <div style={{ height: '2px', backgroundColor: 'black', width: '180px', marginBottom: '5px' }}></div>
-                                        <div style={{ fontSize: '0.8rem', fontWeight: 700 }}>PRINCIPAL</div>
+                                            )}
+                                        </div>
+                                        <div style={{ height: '2px', backgroundColor: '#334155', width: '200px', marginBottom: '8px' }}></div>
+                                        <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0a2540' }}>DR. A. PONNUSAMY</div>
+                                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>PRINCIPAL</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
                     </div>
                 </div>
             )}
